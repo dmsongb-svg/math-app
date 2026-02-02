@@ -2335,12 +2335,13 @@
             if (e.key === 'Enter' && memoryPhase === 'input') startMemoryGame();
         });
 
-        // ========== PWA 서비스워커 등록 ==========
+        // ========== PWA 설정 (서비스워커 제거) ==========
+        // 기존 서비스워커 삭제
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('서비스워커 등록 성공!', reg))
-                    .catch(err => console.log('서비스워커 등록 실패:', err));
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
             });
         }
 
