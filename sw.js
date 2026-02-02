@@ -1,9 +1,10 @@
-const CACHE_NAME = 'math-app-v1';
+const CACHE_NAME = 'math-app-v2';
+const BASE_PATH = '/math-app';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/icon-192.png',
-  '/icon-512.png'
+  BASE_PATH + '/',
+  BASE_PATH + '/index.html',
+  BASE_PATH + '/icon-192.png',
+  BASE_PATH + '/icon-512.png'
 ];
 
 // 설치 시 파일 캐시
@@ -14,6 +15,7 @@ self.addEventListener('install', event => {
         console.log('캐시 저장 완료');
         return cache.addAll(urlsToCache);
       })
+      .catch(err => console.log('캐시 실패:', err))
   );
   self.skipWaiting();
 });
@@ -34,17 +36,15 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// 요청 시 캐시 먼저 확인
+// 요청 시 네트워크 먼저, 실패하면 캐시
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        // 캐시에 있으면 캐시에서, 없으면 네트워크에서
-        return response || fetch(event.request);
+        return response;
       })
       .catch(() => {
-        // 오프라인이고 캐시에도 없으면
-        return caches.match('/index.html');
+        return caches.match(event.request);
       })
   );
 });
