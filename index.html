@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>수학왕 용돈통장 💰</title>
+    
+    <!-- PWA 설정 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="수학왕">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* 탭 네비게이션 */
+        .tab-nav {
+            display: flex;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tab-btn span {
+            font-size: 1.5em;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab-content {
+            background: white;
+            border-radius: 0 0 30px 30px;
+            min-height: 70vh;
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 공통 스타일 */
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        /* ========== 문제풀기 탭 ========== */
+        .money-display {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .current-money {
+            font-size: 2.2em;
+            font-weight: bold;
+        }
+
+        .goal-text {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            height: 25px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #fff176, #ffee58);
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .level-btn {
+            padding: 10px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .level-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .level-btn .reward {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .combo-display {
+            text-align: center;
+            font-size: 1.1em;
+            color: #ff6b6b;
+            font-weight: bold;
+            min-height: 25px;
+            margin-bottom: 10px;
+        }
+
+        .problem-area {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .problem {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .answer-input {
+            font-size: 1.8em;
+            width: 140px;
+            padding: 10px;
+            text-align: center;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            outline: none;
+        }
+
+        .answer-input:focus {
+            border-color: #667eea;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            padding: 15px;
+            font-size: 1.2em;
+        }
+
+        .result-message {
+            text-align: center;
+            font-size: 1.3em;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .result-message.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+            animation: bounce 0.5s;
+        }
+
+        .result-message.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .show-dad-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2em;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        .show-dad-btn.visible {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* 아빠 화면 */
+        .dad-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .dad-overlay.visible {
+            display: flex;
+        }
+
+        .dad-content {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .celebration {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .dad-message {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .earned-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 15px 0;
+        }
+
+        .detail-stats {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .detail-stats p {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-stats p:last-child {
+            border-bottom: none;
+        }
+
+        /* ========== 배우기 탭 ========== */
+        .learn-menu {
+            display: grid;
+            gap: 15px;
+        }
+
+        .learn-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .learn-card:hover {
+            transform: scale(1.02);
+        }
+
+        .learn-card.green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .learn-card.pink {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .learn-card.orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .learn-card-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .learn-card-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .learn-card-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* 배우기 상세 화면 */
+        .learn-detail {
+            display: none;
+        }
+
+        .learn-detail.active {
+            display: block;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .times-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .times-btn {
+            padding: 15px;
+            border: 2px solid #667eea;
+            background: white;
+            border-radius: 12px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .times-btn:hover, .times-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .times-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.3em;
+            line-height: 2;
+        }
+
+        .times-display .highlight {
+            background: #fff176;
+            padding: 2px 8px;
+            border-radius: 5px;
+        }
+
+        /* 나눗셈 배우기 */
+        .division-visual {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .division-items {
+            font-size: 2em;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .division-explanation {
+            background: #e8f5e9;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .division-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* ========== 게임 탭 ========== */
+        .game-menu {
+            display: grid;
+            gap: 15px;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .game-card:hover {
+            transform: scale(1.02);
+        }
+
+        .game-card.blue {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+
+        .game-card.purple {
+            background: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%);
+        }
+
+        .game-card-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .game-card-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .game-card-desc {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* 게임 상세 화면 */
+        .game-detail {
+            display: none;
+        }
+
+        .game-detail.active {
+            display: block;
+        }
+
+        /* 숫자 맞추기 게임 */
+        .number-guess-area {
+            text-align: center;
+        }
+
+        .guess-message {
+            font-size: 1.3em;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 12px;
+            background: #f8f9fa;
+        }
+
+        .guess-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .guess-item {
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .guess-item.up {
+            background: #ffcdd2;
+        }
+
+        .guess-item.down {
+            background: #bbdefb;
+        }
+
+        /* 빠른 계산 게임 */
+        .speed-game-area {
+            text-align: center;
+        }
+
+        .speed-timer {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 15px 0;
+        }
+
+        .speed-score {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .speed-problem {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .speed-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .speed-option {
+            padding: 20px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 15px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .speed-option:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .speed-option.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .speed-option.wrong {
+            background: #f44336;
+            color: white;
+        }
+
+        /* 기억력 게임 */
+        .memory-game-area {
+            text-align: center;
+        }
+
+        .memory-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            letter-spacing: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .memory-input {
+            font-size: 1.5em;
+            padding: 15px;
+            width: 200px;
+            text-align: center;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            letter-spacing: 5px;
+        }
+
+        .memory-level {
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        /* 설정 버튼 */
+        .settings-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            font-size: 1.5em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .settings-panel {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 100;
+            width: 280px;
+        }
+
+        .settings-panel.visible {
+            display: block;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .setting-item input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+
+        /* ========== 난이도 선택 화면 ========== */
+        .level-select-screen {
+            padding: 20px 0;
+        }
+
+        .level-select-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .level-select-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .level-select-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .level-select-card:active {
+            transform: scale(0.98);
+        }
+
+        .level-select-card.easy {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-color: #a8edea;
+        }
+
+        .level-select-card.normal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+
+        .level-select-card.hard {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-color: #f5576c;
+            color: white;
+        }
+
+        .level-select-icon {
+            font-size: 2.5em;
+        }
+
+        .level-select-title {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .level-select-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .level-select-reward {
+            margin-left: auto;
+            font-size: 1.2em;
+            font-weight: bold;
+            background: rgba(255,255,255,0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        /* ========== 과일 바구니 게임 ========== */
+        .fruit-start-screen {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .fruit-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .fruit-desc {
+            font-size: 1.1em;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .fruit-start-btn {
+            padding: 18px 50px;
+            font-size: 1.3em;
+        }
+
+        .fruit-play-screen {
+            padding: 10px;
+        }
+
+        .fruit-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .fruit-hearts {
+            font-size: 1.2em;
+        }
+
+        .fruit-level {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .fruit-progress {
+            font-weight: bold;
+            color: #38ef7d;
+        }
+
+        .fruit-game-area {
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            touch-action: none;
+        }
+
+        #fruitCanvas {
+            display: block;
+            width: 100%;
+            height: 350px;
+        }
+
+        .fruit-basket-info {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .fruit-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .fruit-control-btn {
+            width: 70px;
+            height: 60px;
+            font-size: 1.8em;
+            border: none;
+            border-radius: 15px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .fruit-control-btn:active {
+            background: #5568d9;
+            transform: scale(0.95);
+        }
+
+        .fruit-submit-btn {
+            flex: 1;
+            max-width: 150px;
+            height: 60px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .fruit-submit-btn:active {
+            transform: scale(0.95);
+        }
+
+        .fruit-gameover {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .fruit-gameover-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .fruit-gameover-score {
+            font-size: 1.3em;
+            color: #666;
+            line-height: 2;
+            margin-bottom: 30px;
+        }
+
+        .fruit-success-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            font-weight: bold;
+            color: #38ef7d;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: popIn 0.5s ease;
+            pointer-events: none;
+        }
+
+        .fruit-fail-msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            font-weight: bold;
+            color: #f5576c;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: shake 0.5s ease;
+            pointer-events: none;
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 탭 네비게이션 -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('solve')">
+                <span>✏️</span>
+                문제풀기
+            </button>
+            <button class="tab-btn" onclick="switchTab('learn')">
+                <span>📚</span>
+                배우기
+            </button>
+            <button class="tab-btn" onclick="switchTab('game')">
+                <span>🎮</span>
+                게임
+            </button>
+        </nav>
+
+        <!-- ========== 문제풀기 탭 ========== -->
+        <div class="tab-content active" id="solveTab">
+            <div class="money-display">
+                <div class="current-money" id="currentMoney">0원</div>
+                <div class="goal-text">목표: <span id="goalDisplay">5,000</span>원</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="correctCount">0</div>
+                    <div class="stat-label">맞은 문제</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">푼 문제</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="accuracy">0%</div>
+                    <div class="stat-label">정답률</div>
+                </div>
+            </div>
+
+            <!-- 난이도 선택 화면 -->
+            <div id="levelSelectScreen" class="level-select-screen">
+                <h2 style="text-align:center; margin-bottom:20px;">📝 난이도를 선택하세요!</h2>
+                
+                <div class="level-select-cards">
+                    <div class="level-select-card easy" onclick="selectLevelAndStart(1)">
+                        <div class="level-select-icon">😊</div>
+                        <div class="level-select-title">쉬움</div>
+                        <div class="level-select-desc">한자리 덧셈/뺄셈</div>
+                        <div class="level-select-reward">+10원</div>
+                    </div>
+                    
+                    <div class="level-select-card normal" onclick="selectLevelAndStart(2)">
+                        <div class="level-select-icon">🤔</div>
+                        <div class="level-select-title">보통</div>
+                        <div class="level-select-desc">두자리 덧셈/뺄셈</div>
+                        <div class="level-select-reward">+100원</div>
+                    </div>
+                    
+                    <div class="level-select-card hard" onclick="selectLevelAndStart(3)">
+                        <div class="level-select-icon">🔥</div>
+                        <div class="level-select-title">어려움</div>
+                        <div class="level-select-desc">세자리 덧셈/뺄셈</div>
+                        <div class="level-select-reward">+200원</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 문제 풀기 화면 (처음엔 숨김) -->
+            <div id="problemScreen" style="display:none;">
+                <div class="level-selector">
+                    <button class="level-btn active" onclick="setLevel(1)">
+                        쉬움<br><span class="reward">10원</span>
+                    </button>
+                    <button class="level-btn" onclick="setLevel(2)">
+                        보통<br><span class="reward">100원</span>
+                    </button>
+                    <button class="level-btn" onclick="setLevel(3)">
+                        어려움<br><span class="reward">200원</span>
+                    </button>
+                </div>
+
+                <div class="combo-display" id="comboDisplay"></div>
+                <div class="times-mode-display" id="timesModeDisplay" style="display:none; text-align:center; margin-bottom:10px;">
+                    <span style="background:#667eea; color:white; padding:8px 15px; border-radius:20px; font-size:0.9em;">
+                        🎯 <span id="timesModeText">2</span>단 연습중
+                        <button onclick="exitTimesMode()" style="background:none; border:none; color:white; cursor:pointer; margin-left:5px;">✕</button>
+                    </span>
+                </div>
+                <div class="result-message" id="resultMessage"></div>
+
+                <div class="problem-area">
+                    <div class="problem" id="problem">3 + 2 = ?</div>
+                    <input type="number" class="answer-input" id="answerInput">
+                    <button class="btn btn-primary submit-btn" onclick="checkAnswer()">정답 확인! ✨</button>
+                </div>
+
+                <button class="btn" style="width:100%; margin-top:15px; background:#6c757d; color:white;" onclick="backToLevelSelect()">
+                    난이도 다시 선택
+                </button>
+            </div>
+
+            <button class="btn btn-danger show-dad-btn" id="showDadBtn" onclick="showDadScreen()">
+                🎉 아빠에게 보여주기! 🎉
+            </button>
+        </div>
+
+        <!-- ========== 배우기 탭 ========== -->
+        <div class="tab-content" id="learnTab">
+            <!-- 메뉴 -->
+            <div class="learn-menu" id="learnMenu">
+                <h2 class="section-title">📚 무엇을 배울까요?</h2>
+                
+                <div class="learn-card" onclick="showLearnDetail('times')">
+                    <div class="learn-card-icon">✖️</div>
+                    <div class="learn-card-title">구구단 배우기</div>
+                    <div class="learn-card-desc">2단부터 9단까지 재미있게 외워요!</div>
+                </div>
+
+                <div class="learn-card green" onclick="showLearnDetail('division')">
+                    <div class="learn-card-icon">➗</div>
+                    <div class="learn-card-title">나눗셈 개념 익히기</div>
+                    <div class="learn-card-desc">나누기가 뭔지 쉽게 알아봐요!</div>
+                </div>
+
+                <div class="learn-card pink" onclick="showLearnDetail('place')">
+                    <div class="learn-card-icon">🔢</div>
+                    <div class="learn-card-title">자릿수 이해하기</div>
+                    <div class="learn-card-desc">일의 자리, 십의 자리, 백의 자리!</div>
+                </div>
+            </div>
+
+            <!-- 구구단 배우기 -->
+            <div class="learn-detail" id="learnTimes">
+                <button class="back-btn" onclick="backToLearnMenu()">← 돌아가기</button>
+                <h2 class="section-title">✖️ 구구단 배우기</h2>
+                
+                <div class="times-table">
+                    <button class="times-btn" onclick="showTimesTable(2)">2단</button>
+                    <button class="times-btn" onclick="showTimesTable(3)">3단</button>
+                    <button class="times-btn" onclick="showTimesTable(4)">4단</button>
+                    <button class="times-btn" onclick="showTimesTable(5)">5단</button>
+                    <button class="times-btn" onclick="showTimesTable(6)">6단</button>
+                    <button class="times-btn" onclick="showTimesTable(7)">7단</button>
+                    <button class="times-btn" onclick="showTimesTable(8)">8단</button>
+                    <button class="times-btn" onclick="showTimesTable(9)">9단</button>
+                </div>
+
+                <div class="times-display" id="timesDisplay">
+                    위에서 단을 선택해주세요! 🎯
+                </div>
+
+                <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="practiceTimesTable()">
+                    🎯 구구단 연습하기
+                </button>
+            </div>
+
+            <!-- 나눗셈 배우기 -->
+            <div class="learn-detail" id="learnDivision">
+                <button class="back-btn" onclick="backToLearnMenu()">← 돌아가기</button>
+                <h2 class="section-title">➗ 나눗셈 배우기</h2>
+                
+                <div class="division-visual" id="divisionVisual">
+                    <div class="division-items" id="divisionItems">🍎🍎🍎🍎🍎🍎</div>
+                    <div class="division-explanation" id="divisionExplanation">
+                        <strong>6 ÷ 2 = ?</strong><br><br>
+                        사과 6개를 2명이 똑같이 나눠 가지면?<br>
+                        한 사람당 <strong>3개</strong>씩 가질 수 있어요!<br><br>
+                        🍎🍎🍎 | 🍎🍎🍎
+                    </div>
+                </div>
+
+                <div class="division-nav">
+                    <button class="btn btn-primary" onclick="prevDivisionExample()">◀ 이전</button>
+                    <button class="btn btn-success" onclick="nextDivisionExample()">다음 ▶</button>
+                </div>
+            </div>
+
+            <!-- 자릿수 배우기 -->
+            <div class="learn-detail" id="learnPlace">
+                <button class="back-btn" onclick="backToLearnMenu()">← 돌아가기</button>
+                <h2 class="section-title">🔢 자릿수 이해하기</h2>
+                
+                <div class="card" id="placeValueDisplay">
+                    <div style="text-align:center; font-size:3em; margin-bottom:20px;">
+                        <span style="color:#f5576c">3</span><span style="color:#667eea">5</span><span style="color:#38ef7d">7</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-around; text-align:center;">
+                        <div>
+                            <div style="font-size:2em; color:#f5576c;">3</div>
+                            <div style="background:#f5576c; color:white; padding:8px; border-radius:8px;">백의 자리</div>
+                            <div style="margin-top:5px;">300</div>
+                        </div>
+                        <div>
+                            <div style="font-size:2em; color:#667eea;">5</div>
+                            <div style="background:#667eea; color:white; padding:8px; border-radius:8px;">십의 자리</div>
+                            <div style="margin-top:5px;">50</div>
+                        </div>
+                        <div>
+                            <div style="font-size:2em; color:#38ef7d;">7</div>
+                            <div style="background:#38ef7d; color:white; padding:8px; border-radius:8px;">일의 자리</div>
+                            <div style="margin-top:5px;">7</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; margin-top:20px; font-size:1.2em; background:#f8f9fa; padding:15px; border-radius:10px;">
+                        300 + 50 + 7 = <strong>357</strong>
+                    </div>
+                </div>
+
+                <div style="text-align:center;">
+                    <button class="btn btn-primary" onclick="randomPlaceValue()">🎲 다른 숫자 보기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== 게임 탭 ========== -->
+        <div class="tab-content" id="gameTab">
+            <!-- 메뉴 -->
+            <div class="game-menu" id="gameMenu">
+                <h2 class="section-title">🎮 어떤 게임을 할까요?</h2>
+                
+                <div class="game-card" onclick="showGameDetail('fruit')">
+                    <div class="game-card-icon">🧺</div>
+                    <div class="game-card-title">과일 바구니</div>
+                    <div class="game-card-desc">떨어지는 과일을 딱 맞게 담아요!</div>
+                </div>
+
+                <div class="game-card blue" onclick="showGameDetail('speed')">
+                    <div class="game-card-icon">⚡</div>
+                    <div class="game-card-title">빠른 계산</div>
+                    <div class="game-card-desc">30초 안에 최대한 많이 맞춰요!</div>
+                </div>
+
+                <div class="game-card purple" onclick="showGameDetail('guess')">
+                    <div class="game-card-icon">🔮</div>
+                    <div class="game-card-title">숫자 맞추기</div>
+                    <div class="game-card-desc">1~100 사이 숨겨진 숫자를 찾아요!</div>
+                </div>
+
+                <div class="game-card" style="background: linear-gradient(135deg, #a8e6cf 0%, #88d8b0 100%);" onclick="showGameDetail('memory')">
+                    <div class="game-card-icon">🧠</div>
+                    <div class="game-card-title">숫자 기억력</div>
+                    <div class="game-card-desc">숫자를 보고 기억해서 맞춰요!</div>
+                </div>
+            </div>
+
+            <!-- 과일 바구니 게임 -->
+            <div class="game-detail" id="gameFruit">
+                <button class="back-btn" onclick="backToGameMenu(); stopFruitGame();">← 돌아가기</button>
+                
+                <div id="fruitGameContainer">
+                    <!-- 게임 시작 화면 -->
+                    <div id="fruitStartScreen" class="fruit-start-screen">
+                        <div class="fruit-title">🧺 과일 바구니</div>
+                        <div class="fruit-desc">
+                            떨어지는 과일을 바구니에 담아요!<br>
+                            바구니 숫자에 딱 맞게 담으면 성공!<br><br>
+                            ⚠️ 숫자보다 많이 담으면 ❤️ 감소!
+                        </div>
+                        <button class="btn btn-primary fruit-start-btn" onclick="startFruitGame()">
+                            🎮 게임 시작!
+                        </button>
+                    </div>
+
+                    <!-- 게임 플레이 화면 -->
+                    <div id="fruitPlayScreen" class="fruit-play-screen" style="display:none;">
+                        <div class="fruit-hud">
+                            <div class="fruit-hearts" id="fruitHearts">❤️❤️❤️❤️❤️</div>
+                            <div class="fruit-level">레벨 <span id="fruitLevel">1</span></div>
+                            <div class="fruit-progress"><span id="fruitCorrect">0</span>/10</div>
+                        </div>
+                        
+                        <div class="fruit-game-area" id="fruitGameArea">
+                            <canvas id="fruitCanvas"></canvas>
+                        </div>
+                        
+                        <div class="fruit-basket-info">
+                            바구니: <span id="fruitBasketCurrent">0</span> / <span id="fruitBasketTarget">10</span>
+                        </div>
+                        
+                        <div class="fruit-controls">
+                            <button class="fruit-control-btn" id="fruitLeftBtn">◀</button>
+                            <button class="fruit-submit-btn" onclick="submitBasket()">완료!</button>
+                            <button class="fruit-control-btn" id="fruitRightBtn">▶</button>
+                        </div>
+                    </div>
+
+                    <!-- 게임 오버 화면 -->
+                    <div id="fruitGameOver" class="fruit-gameover" style="display:none;">
+                        <div class="fruit-gameover-title">게임 오버! 😢</div>
+                        <div class="fruit-gameover-score">
+                            최고 레벨: <span id="fruitFinalLevel">1</span><br>
+                            맞춘 문제: <span id="fruitFinalScore">0</span>개
+                        </div>
+                        <button class="btn btn-primary" onclick="startFruitGame()">다시 하기</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 빠른 계산 게임 -->
+            <div class="game-detail" id="gameSpeed">
+                <button class="back-btn" onclick="backToGameMenu()">← 돌아가기</button>
+                <h2 class="section-title">⚡ 빠른 계산</h2>
+                
+                <div class="speed-game-area">
+                    <div class="speed-timer" id="speedTimer">30</div>
+                    <div class="speed-score">점수: <span id="speedScore">0</span>점</div>
+                    
+                    <div class="speed-problem" id="speedProblem">준비!</div>
+                    
+                    <div class="speed-options" id="speedOptions">
+                        <button class="btn btn-primary" style="width:100%; grid-column: span 2;" onclick="startSpeedGame()">
+                            🎮 게임 시작!
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 숫자 맞추기 게임 -->
+            <div class="game-detail" id="gameGuess">
+                <button class="back-btn" onclick="backToGameMenu()">← 돌아가기</button>
+                <h2 class="section-title">🔮 숫자 맞추기</h2>
+                
+                <div class="number-guess-area">
+                    <div class="guess-message" id="guessMessage">
+                        1부터 100 사이의 숫자를 맞춰보세요!
+                    </div>
+                    
+                    <div class="guess-history" id="guessHistory"></div>
+                    
+                    <input type="number" class="answer-input" id="guessInput" min="1" max="100" placeholder="?">
+                    <br><br>
+                    <button class="btn btn-primary" onclick="makeGuess()">맞춰보기!</button>
+                    <button class="btn btn-success" onclick="newGuessGame()">새 게임</button>
+                </div>
+            </div>
+
+            <!-- 숫자 기억력 게임 -->
+            <div class="game-detail" id="gameMemory">
+                <button class="back-btn" onclick="backToGameMenu()">← 돌아가기</button>
+                <h2 class="section-title">🧠 숫자 기억력</h2>
+                
+                <div class="memory-game-area">
+                    <div class="memory-level" id="memoryLevel">레벨 1 (3자리)</div>
+                    <div class="memory-display" id="memoryDisplay">???</div>
+                    
+                    <input type="text" class="memory-input" id="memoryInput" maxlength="10" placeholder="숫자 입력">
+                    <br><br>
+                    <button class="btn btn-primary" id="memoryBtn" onclick="startMemoryGame()">시작!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 아빠 화면 오버레이 -->
+    <div class="dad-overlay" id="dadOverlay">
+        <div class="dad-content">
+            <div class="celebration">🎊🏆🎊</div>
+            <div class="dad-message">
+                우리 딸이 열심히<br>수학 공부했어요!
+            </div>
+            <div class="earned-amount" id="earnedAmount">5,000원</div>
+            
+            <div class="detail-stats">
+                <p><span>📝 푼 문제</span><span id="dadTotal">0문제</span></p>
+                <p><span>✅ 맞은 문제</span><span id="dadCorrect">0문제</span></p>
+                <p><span>📊 정답률</span><span id="dadAccuracy">0%</span></p>
+                <p><span>🔥 최고 콤보</span><span id="dadCombo">0연속</span></p>
+            </div>
+
+            <button class="btn btn-success" onclick="giveMoney()">
+                💸 용돈 주기 완료!
+            </button>
+            <br><br>
+            <button class="btn" style="background:#6c757d;color:white;" onclick="closeDadScreen()">
+                닫기
+            </button>
+        </div>
+    </div>
+
+    <!-- 설정 버튼 -->
+    <button class="settings-float" onclick="toggleSettings()">⚙️</button>
+    <div class="settings-panel" id="settingsPanel">
+        <h3 style="margin-bottom:15px;">⚙️ 설정</h3>
+        <div class="setting-item">
+            <label>목표 금액 (원)</label>
+            <input type="number" id="goalAmount" value="5000">
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="saveSettings()">저장</button>
+        <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="resetAll()">전체 초기화</button>
+    </div>
+
+    <script>
+        // ========== 게임 상태 ==========
+        let state = {
+            money: 0,
+            correct: 0,
+            total: 0,
+            combo: 0,
+            maxCombo: 0,
+            level: 1,
+            currentAnswer: 0,
+            goalAmount: 5000,
+            timesTableMode: 0
+        };
+
+        const rewards = { 1: 10, 2: 100, 3: 200 };
+
+        // ========== 초기화 ==========
+        function loadState() {
+            const saved = localStorage.getItem('mathGameStateV2');
+            if (saved) {
+                state = { ...state, ...JSON.parse(saved) };
+            }
+            updateDisplay();
+            // 난이도 선택 화면 먼저 표시 (generateProblem 호출 안 함)
+            initGuessGame();
+        }
+
+        function saveState() {
+            localStorage.setItem('mathGameStateV2', JSON.stringify(state));
+        }
+
+        // ========== 탭 전환 ==========
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                // 탭 이름과 매칭되는 버튼 활성화
+                if (btn.textContent.includes(tabName === 'solve' ? '문제풀기' : tabName === 'learn' ? '배우기' : '게임')) {
+                    btn.classList.add('active');
+                }
+            });
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // 배우기/게임 탭 메뉴로 돌아가기
+            if (tabName === 'learn') backToLearnMenu();
+            if (tabName === 'game') backToGameMenu();
+        }
+
+        // ========== 문제풀기 ==========
+        function generateProblem() {
+            // 구구단 연습 모드면 구구단 문제 출제
+            if (state.timesTableMode) {
+                generateTimesTableProblem();
+                return;
+            }
+            
+            let num1, num2, operator, answer;
+            
+            if (state.level === 1) {
+                // 쉬움: 한자리 덧셈/뺄셈
+                num1 = Math.floor(Math.random() * 9) + 1;
+                num2 = Math.floor(Math.random() * 9) + 1;
+            } else if (state.level === 2) {
+                // 보통: 두자리 덧셈/뺄셈
+                num1 = Math.floor(Math.random() * 90) + 10;
+                num2 = Math.floor(Math.random() * 90) + 10;
+            } else {
+                // 어려움: 세자리 덧셈/뺄셈
+                num1 = Math.floor(Math.random() * 900) + 100;
+                num2 = Math.floor(Math.random() * 900) + 100;
+            }
+
+            if (Math.random() > 0.5) {
+                operator = '+';
+                answer = num1 + num2;
+            } else {
+                operator = '-';
+                if (num1 < num2) [num1, num2] = [num2, num1];
+                answer = num1 - num2;
+            }
+
+            // 문제 유형 결정
+            let problemType;
+            
+            if (state.level === 1) {
+                // 쉬움: 가로형 또는 빈칸형 (콤보 5 이상일 때만)
+                if (state.combo >= 5 && Math.random() < 0.4) {
+                    problemType = 'blank';
+                } else {
+                    problemType = 'horizontal';
+                }
+            } else {
+                // 보통/어려움: 가로형, 세로형, 빈칸형
+                const rand = Math.random();
+                if (state.combo >= 5 && rand < 0.33) {
+                    problemType = 'blank';
+                } else if (rand < 0.5) {
+                    problemType = 'vertical';
+                } else {
+                    problemType = 'horizontal';
+                }
+            }
+
+            // 문제 출력
+            if (problemType === 'horizontal') {
+                // 가로형: 15 + 23 = ?
+                state.currentAnswer = answer;
+                document.getElementById('problem').innerHTML = `${num1} ${operator} ${num2} = ?`;
+            } else if (problemType === 'vertical') {
+                // 세로형
+                state.currentAnswer = answer;
+                document.getElementById('problem').innerHTML = `
+                    <div style="display:inline-block; text-align:right; font-family:monospace;">
+                        <div>${num1}</div>
+                        <div>${operator} ${num2}</div>
+                        <div style="border-top:3px solid #333; margin-top:5px; padding-top:5px;">?</div>
+                    </div>
+                `;
+            } else {
+                // 빈칸형: □ 찾기
+                const blankPos = Math.random() < 0.5 ? 0 : 1; // 첫번째 또는 두번째
+                
+                if (blankPos === 0) {
+                    // □ + num2 = answer  또는  □ - num2 = answer
+                    state.currentAnswer = num1;
+                    document.getElementById('problem').innerHTML = `□ ${operator} ${num2} = ${answer}`;
+                } else {
+                    // num1 + □ = answer  또는  num1 - □ = answer
+                    state.currentAnswer = num2;
+                    document.getElementById('problem').innerHTML = `${num1} ${operator} □ = ${answer}`;
+                }
+            }
+
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answerInput').value);
+            const resultMsg = document.getElementById('resultMessage');
+            
+            if (isNaN(userAnswer)) {
+                resultMsg.textContent = '숫자를 입력해주세요!';
+                resultMsg.className = 'result-message wrong';
+                return;
+            }
+
+            state.total++;
+
+            if (userAnswer === state.currentAnswer) {
+                state.correct++;
+                state.combo++;
+                if (state.combo > state.maxCombo) state.maxCombo = state.combo;
+                
+                // 구구단 모드면 80원, 아니면 레벨별 보상
+                let baseReward = state.timesTableMode ? 80 : rewards[state.level];
+                let bonus = baseReward;
+                if (state.combo >= 10) bonus = Math.floor(bonus * 1.5);
+                else if (state.combo >= 5) bonus = Math.floor(bonus * 1.2);
+                
+                state.money += bonus;
+
+                const messages = ['정답! 🎉', '잘했어! ⭐', '최고야! 👏', '대단해! 🌟', '천재! 🏆'];
+                resultMsg.textContent = messages[Math.floor(Math.random() * messages.length)];
+                if (bonus > baseReward) {
+                    resultMsg.textContent += ` (+${bonus}원 콤보!)`;
+                }
+                resultMsg.className = 'result-message correct';
+            } else {
+                state.combo = 0;
+                
+                // 틀리면 난이도에 따라 용돈 차감
+                const penalty = rewards[state.level];
+                state.money = Math.max(0, state.money - penalty);
+                
+                resultMsg.textContent = `아쉬워! 정답은 ${state.currentAnswer}이야 (-${penalty}원) 💪`;
+                resultMsg.className = 'result-message wrong';
+            }
+
+            updateDisplay();
+            saveState();
+
+            setTimeout(() => {
+                resultMsg.className = 'result-message';
+                generateProblem();
+            }, 1500);
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentMoney').textContent = state.money.toLocaleString() + '원';
+            document.getElementById('correctCount').textContent = state.correct;
+            document.getElementById('totalCount').textContent = state.total;
+            
+            const accuracy = state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+
+            const progress = Math.min((state.money / state.goalAmount) * 100, 100);
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressFill').textContent = Math.round(progress) + '%';
+            document.getElementById('goalDisplay').textContent = state.goalAmount.toLocaleString();
+
+            const comboDisplay = document.getElementById('comboDisplay');
+            comboDisplay.textContent = state.combo >= 3 ? `🔥 ${state.combo}연속 정답! 🔥` : '';
+
+            const showDadBtn = document.getElementById('showDadBtn');
+            showDadBtn.classList.toggle('visible', state.money >= state.goalAmount);
+        }
+
+        function setLevel(level) {
+            state.level = level;
+            state.timesTableMode = 0; // 구구단 모드 해제
+            document.querySelectorAll('.level-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i + 1 === level);
+            });
+            generateProblem();
+            saveState();
+        }
+
+        function selectLevelAndStart(level) {
+            state.level = level;
+            saveState();
+            
+            // 화면 전환
+            document.getElementById('levelSelectScreen').style.display = 'none';
+            document.getElementById('problemScreen').style.display = 'block';
+            
+            // 레벨 버튼 업데이트
+            document.querySelectorAll('.level-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i + 1 === level);
+            });
+            
+            // 문제 생성
+            generateProblem();
+            document.getElementById('answerInput').focus();
+        }
+
+        function backToLevelSelect() {
+            document.getElementById('levelSelectScreen').style.display = 'block';
+            document.getElementById('problemScreen').style.display = 'none';
+        }
+
+        // 아빠 화면
+        function showDadScreen() {
+            document.getElementById('dadOverlay').classList.add('visible');
+            document.getElementById('earnedAmount').textContent = state.money.toLocaleString() + '원';
+            document.getElementById('dadTotal').textContent = state.total + '문제';
+            document.getElementById('dadCorrect').textContent = state.correct + '문제';
+            document.getElementById('dadAccuracy').textContent = 
+                (state.total > 0 ? Math.round((state.correct / state.total) * 100) : 0) + '%';
+            document.getElementById('dadCombo').textContent = state.maxCombo + '연속';
+        }
+
+        function closeDadScreen() {
+            document.getElementById('dadOverlay').classList.remove('visible');
+        }
+
+        function giveMoney() {
+            alert(`💰 ${state.money.toLocaleString()}원 용돈 지급 완료!\n\n우리 딸 정말 대단해요! 🎉`);
+            resetGame();
+        }
+
+        function resetGame() {
+            state = { ...state, money: 0, correct: 0, total: 0, combo: 0, maxCombo: 0 };
+            saveState();
+            closeDadScreen();
+            updateDisplay();
+            generateProblem();
+        }
+
+        // ========== 배우기 탭 ==========
+        function showLearnDetail(type) {
+            document.getElementById('learnMenu').style.display = 'none';
+            document.getElementById('learnTimes').classList.remove('active');
+            document.getElementById('learnDivision').classList.remove('active');
+            document.getElementById('learnPlace').classList.remove('active');
+            document.getElementById('learn' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+        }
+
+        function backToLearnMenu() {
+            document.getElementById('learnMenu').style.display = 'grid';
+            document.querySelectorAll('.learn-detail').forEach(d => d.classList.remove('active'));
+        }
+
+        // 구구단
+        let currentTimesTable = 0;
+        function showTimesTable(n) {
+            currentTimesTable = n;
+            document.querySelectorAll('.times-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(n + '단'));
+            });
+            
+            let html = `<div style="text-align:center; font-size:1.5em; margin-bottom:15px;">🎯 ${n}단</div>`;
+            for (let i = 1; i <= 9; i++) {
+                html += `${n} × ${i} = <span class="highlight">${n * i}</span><br>`;
+            }
+            document.getElementById('timesDisplay').innerHTML = html;
+        }
+
+        function practiceTimesTable() {
+            if (!currentTimesTable) {
+                alert('먼저 단을 선택해주세요!');
+                return;
+            }
+            // 구구단 연습 모드로 전환
+            state.timesTableMode = currentTimesTable;
+            saveState();
+            switchTab('solve');
+            setTimeout(() => {
+                generateTimesTableProblem();
+            }, 100);
+        }
+
+        function generateTimesTableProblem() {
+            if (!state.timesTableMode) return;
+            const n = state.timesTableMode;
+            const multiplier = Math.floor(Math.random() * 9) + 1;
+            state.currentAnswer = n * multiplier;
+            document.getElementById('problem').textContent = `${n} × ${multiplier} = ?`;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerInput').focus();
+            
+            // 구구단 모드 표시
+            document.getElementById('timesModeDisplay').style.display = 'block';
+            document.getElementById('timesModeText').textContent = n;
+        }
+
+        function exitTimesMode() {
+            state.timesTableMode = 0;
+            document.getElementById('timesModeDisplay').style.display = 'none';
+            saveState();
+            generateProblem();
+        }
+
+        // 나눗셈
+        const divisionExamples = [
+            { items: '🍎🍎🍎🍎🍎🍎', total: 6, divisor: 2, result: 3, split: '🍎🍎🍎 | 🍎🍎🍎', item: '사과' },
+            { items: '🍪🍪🍪🍪🍪🍪🍪🍪', total: 8, divisor: 4, result: 2, split: '🍪🍪 | 🍪🍪 | 🍪🍪 | 🍪🍪', item: '쿠키' },
+            { items: '⭐⭐⭐⭐⭐⭐⭐⭐⭐', total: 9, divisor: 3, result: 3, split: '⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐', item: '별' },
+            { items: '🎈🎈🎈🎈🎈🎈🎈🎈🎈🎈', total: 10, divisor: 5, result: 2, split: '🎈🎈 | 🎈🎈 | 🎈🎈 | 🎈🎈 | 🎈🎈', item: '풍선' },
+            { items: '🍬🍬🍬🍬🍬🍬🍬🍬🍬🍬🍬🍬', total: 12, divisor: 3, result: 4, split: '🍬🍬🍬🍬 | 🍬🍬🍬🍬 | 🍬🍬🍬🍬', item: '사탕' },
+        ];
+        let divisionIndex = 0;
+
+        function showDivisionExample() {
+            const ex = divisionExamples[divisionIndex];
+            document.getElementById('divisionItems').textContent = ex.items;
+            document.getElementById('divisionExplanation').innerHTML = `
+                <strong>${ex.total} ÷ ${ex.divisor} = ?</strong><br><br>
+                ${ex.item} ${ex.total}개를 ${ex.divisor}명이 똑같이 나눠 가지면?<br>
+                한 사람당 <strong>${ex.result}개</strong>씩 가질 수 있어요!<br><br>
+                ${ex.split}
+            `;
+        }
+
+        function nextDivisionExample() {
+            divisionIndex = (divisionIndex + 1) % divisionExamples.length;
+            showDivisionExample();
+        }
+
+        function prevDivisionExample() {
+            divisionIndex = (divisionIndex - 1 + divisionExamples.length) % divisionExamples.length;
+            showDivisionExample();
+        }
+
+        // 자릿수
+        function randomPlaceValue() {
+            const num = Math.floor(Math.random() * 900) + 100;
+            const h = Math.floor(num / 100);
+            const t = Math.floor((num % 100) / 10);
+            const o = num % 10;
+            
+            document.getElementById('placeValueDisplay').innerHTML = `
+                <div style="text-align:center; font-size:3em; margin-bottom:20px;">
+                    <span style="color:#f5576c">${h}</span><span style="color:#667eea">${t}</span><span style="color:#38ef7d">${o}</span>
+                </div>
+                <div style="display:flex; justify-content:space-around; text-align:center;">
+                    <div>
+                        <div style="font-size:2em; color:#f5576c;">${h}</div>
+                        <div style="background:#f5576c; color:white; padding:8px; border-radius:8px;">백의 자리</div>
+                        <div style="margin-top:5px;">${h * 100}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:2em; color:#667eea;">${t}</div>
+                        <div style="background:#667eea; color:white; padding:8px; border-radius:8px;">십의 자리</div>
+                        <div style="margin-top:5px;">${t * 10}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:2em; color:#38ef7d;">${o}</div>
+                        <div style="background:#38ef7d; color:white; padding:8px; border-radius:8px;">일의 자리</div>
+                        <div style="margin-top:5px;">${o}</div>
+                    </div>
+                </div>
+                <div style="text-align:center; margin-top:20px; font-size:1.2em; background:#f8f9fa; padding:15px; border-radius:10px;">
+                    ${h * 100} + ${t * 10} + ${o} = <strong>${num}</strong>
+                </div>
+            `;
+        }
+
+        // ========== 게임 탭 ==========
+        function showGameDetail(type) {
+            document.getElementById('gameMenu').style.display = 'none';
+            document.querySelectorAll('.game-detail').forEach(d => d.classList.remove('active'));
+            document.getElementById('game' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('active');
+        }
+
+        function backToGameMenu() {
+            document.getElementById('gameMenu').style.display = 'grid';
+            document.querySelectorAll('.game-detail').forEach(d => d.classList.remove('active'));
+            // 게임 리셋
+            if (speedInterval) clearInterval(speedInterval);
+            stopFruitGame();
+        }
+
+        // ========== 과일 바구니 게임 ==========
+        const fruitEmojis = ['🍎', '🍊', '🍋', '🍇', '🍓', '🍑', '🥝', '🍒'];
+        let fruitGame = {
+            level: 1,
+            hearts: 5,
+            correct: 0,
+            totalCorrect: 0,
+            target: 0,
+            current: 0,
+            basketX: 0,
+            basketWidth: 80,
+            fruits: [],
+            gameLoop: null,
+            isRunning: false,
+            canvas: null,
+            ctx: null,
+            canvasWidth: 0,
+            canvasHeight: 0,
+            moveLeft: false,
+            moveRight: false,
+            moveInterval: null,
+            speedMultiplier: 1,
+            mathDifficulty: 1
+        };
+
+        function startFruitGame() {
+            // 초기화
+            fruitGame.level = 1;
+            fruitGame.hearts = 5;
+            fruitGame.correct = 0;
+            fruitGame.totalCorrect = 0;
+            fruitGame.speedMultiplier = 1;
+            fruitGame.mathDifficulty = 1;
+            fruitGame.fruits = [];
+            fruitGame.current = 0;
+            
+            // 화면 전환
+            document.getElementById('fruitStartScreen').style.display = 'none';
+            document.getElementById('fruitPlayScreen').style.display = 'block';
+            document.getElementById('fruitGameOver').style.display = 'none';
+            
+            // 캔버스 설정
+            fruitGame.canvas = document.getElementById('fruitCanvas');
+            fruitGame.ctx = fruitGame.canvas.getContext('2d');
+            
+            const container = document.getElementById('fruitGameArea');
+            fruitGame.canvasWidth = container.offsetWidth;
+            fruitGame.canvasHeight = 350;
+            fruitGame.canvas.width = fruitGame.canvasWidth;
+            fruitGame.canvas.height = fruitGame.canvasHeight;
+            
+            fruitGame.basketX = fruitGame.canvasWidth / 2 - fruitGame.basketWidth / 2;
+            
+            // 컨트롤 이벤트 설정
+            setupFruitControls();
+            
+            // 새 라운드 시작
+            newFruitRound();
+            
+            // 게임 루프 시작
+            fruitGame.isRunning = true;
+            fruitGameLoop();
+            
+            // 첫 과일 바로 스폰
+            setTimeout(spawnFruitGroup, 500);
+        }
+
+        function setupFruitControls() {
+            const leftBtn = document.getElementById('fruitLeftBtn');
+            const rightBtn = document.getElementById('fruitRightBtn');
+            
+            // 터치/마우스 이벤트
+            const startMove = (dir) => {
+                if (dir === 'left') fruitGame.moveLeft = true;
+                if (dir === 'right') fruitGame.moveRight = true;
+            };
+            
+            const stopMove = () => {
+                fruitGame.moveLeft = false;
+                fruitGame.moveRight = false;
+            };
+            
+            leftBtn.onmousedown = leftBtn.ontouchstart = (e) => { e.preventDefault(); startMove('left'); };
+            rightBtn.onmousedown = rightBtn.ontouchstart = (e) => { e.preventDefault(); startMove('right'); };
+            leftBtn.onmouseup = leftBtn.ontouchend = leftBtn.onmouseleave = stopMove;
+            rightBtn.onmouseup = rightBtn.ontouchend = rightBtn.onmouseleave = stopMove;
+            
+            // 터치로 바구니 직접 이동
+            fruitGame.canvas.ontouchmove = (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = fruitGame.canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                fruitGame.basketX = Math.max(0, Math.min(x - fruitGame.basketWidth/2, fruitGame.canvasWidth - fruitGame.basketWidth));
+            };
+        }
+
+        function newFruitRound() {
+            // 목표 숫자 설정 (난이도에 따라)
+            if (fruitGame.mathDifficulty === 1) {
+                fruitGame.target = Math.floor(Math.random() * 6) + 5; // 5~10
+            } else if (fruitGame.mathDifficulty === 2) {
+                fruitGame.target = Math.floor(Math.random() * 10) + 8; // 8~17
+            } else {
+                fruitGame.target = Math.floor(Math.random() * 15) + 10; // 10~24
+            }
+            
+            fruitGame.current = 0;
+            fruitGame.fruits = [];
+            
+            updateFruitHUD();
+            // spawnFruitGroup은 게임 시작 시와 라운드 성공/실패 후 별도 호출
+        }
+
+        function spawnFruitGroup() {
+            if (!fruitGame.isRunning) return;
+            
+            // 그룹 크기 (1~5개)
+            const maxGroupSize = Math.min(5, fruitGame.target - fruitGame.current + 2);
+            const groupSize = Math.floor(Math.random() * Math.min(maxGroupSize, 5)) + 1;
+            
+            // 그룹 위치 (좌우 범위 내 랜덤) - 세로로 떨어지니까 X 위치만 정함
+            const groupX = Math.random() * (fruitGame.canvasWidth - 60) + 30;
+            
+            // 과일 종류 선택
+            const fruitType = fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)];
+            
+            const groupId = Date.now();
+            
+            // 과일 그룹 생성 (세로로 배열)
+            for (let i = 0; i < groupSize; i++) {
+                fruitGame.fruits.push({
+                    x: groupX,
+                    y: -30 - i * 35,  // 세로로 간격 두고 배열
+                    emoji: fruitType,
+                    groupId: groupId,
+                    collected: false
+                });
+            }
+            
+            // 다음 그룹 스폰 (속도에 따라 간격 조절)
+            const spawnDelay = Math.max(2000, 5000 / fruitGame.speedMultiplier); // 5초에서 시작
+            setTimeout(spawnFruitGroup, spawnDelay);
+        }
+
+        function fruitGameLoop() {
+            if (!fruitGame.isRunning) return;
+            
+            const speed = 0.3 * fruitGame.speedMultiplier; // 0.3으로 대폭 감소 (원래 2)
+            
+            // 바구니 이동
+            if (fruitGame.moveLeft) {
+                fruitGame.basketX = Math.max(0, fruitGame.basketX - 8);
+            }
+            if (fruitGame.moveRight) {
+                fruitGame.basketX = Math.min(fruitGame.canvasWidth - fruitGame.basketWidth, fruitGame.basketX + 8);
+            }
+            
+            // 과일 이동 및 충돌 체크
+            for (let fruit of fruitGame.fruits) {
+                if (fruit.collected) continue;
+                
+                fruit.y += speed;
+                
+                // 바구니와 충돌 체크
+                const basketTop = fruitGame.canvasHeight - 60;
+                if (fruit.y >= basketTop - 20 && fruit.y <= basketTop + 20) {
+                    if (fruit.x >= fruitGame.basketX - 10 && fruit.x <= fruitGame.basketX + fruitGame.basketWidth + 10) {
+                        fruit.collected = true;
+                        fruitGame.current++;
+                        updateFruitHUD();
+                        
+                        // 초과하면 실패
+                        if (fruitGame.current > fruitGame.target) {
+                            fruitFail();
+                        }
+                    }
+                }
+            }
+            
+            // 화면 밖으로 나간 과일 제거
+            fruitGame.fruits = fruitGame.fruits.filter(f => f.y < fruitGame.canvasHeight + 50 || f.collected);
+            
+            // 그리기
+            drawFruitGame();
+            
+            fruitGame.gameLoop = requestAnimationFrame(fruitGameLoop);
+        }
+
+        function drawFruitGame() {
+            const ctx = fruitGame.ctx;
+            const w = fruitGame.canvasWidth;
+            const h = fruitGame.canvasHeight;
+            
+            // 배경
+            const gradient = ctx.createLinearGradient(0, 0, 0, h);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#E0F6FF');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, w, h);
+            
+            // 땅
+            ctx.fillStyle = '#90EE90';
+            ctx.fillRect(0, h - 30, w, 30);
+            
+            // 과일 그리기
+            ctx.font = '28px serif';
+            for (let fruit of fruitGame.fruits) {
+                if (!fruit.collected) {
+                    ctx.fillText(fruit.emoji, fruit.x, fruit.y);
+                }
+            }
+            
+            // 바구니 그리기
+            const bx = fruitGame.basketX;
+            const by = h - 60;
+            
+            // 바구니 몸체
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.moveTo(bx, by);
+            ctx.lineTo(bx + 10, by + 45);
+            ctx.lineTo(bx + fruitGame.basketWidth - 10, by + 45);
+            ctx.lineTo(bx + fruitGame.basketWidth, by);
+            ctx.closePath();
+            ctx.fill();
+            
+            // 바구니 무늬
+            ctx.strokeStyle = '#A0522D';
+            ctx.lineWidth = 2;
+            for (let i = 1; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(bx + 5, by + i * 12);
+                ctx.lineTo(bx + fruitGame.basketWidth - 5, by + i * 12);
+                ctx.stroke();
+            }
+            
+            // 바구니 위 목표 숫자
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(fruitGame.target, bx + fruitGame.basketWidth/2, by - 8);
+            ctx.textAlign = 'left';
+        }
+
+        function updateFruitHUD() {
+            document.getElementById('fruitHearts').textContent = '❤️'.repeat(fruitGame.hearts) + '🖤'.repeat(5 - fruitGame.hearts);
+            document.getElementById('fruitLevel').textContent = fruitGame.level;
+            document.getElementById('fruitCorrect').textContent = fruitGame.correct;
+            document.getElementById('fruitBasketCurrent').textContent = fruitGame.current;
+            document.getElementById('fruitBasketTarget').textContent = fruitGame.target;
+        }
+
+        function submitBasket() {
+            if (fruitGame.current === fruitGame.target) {
+                fruitSuccess();
+            } else if (fruitGame.current < fruitGame.target) {
+                // 아직 부족함 - 실패
+                fruitFail();
+            }
+        }
+
+        function fruitSuccess() {
+            fruitGame.correct++;
+            fruitGame.totalCorrect++;
+            
+            // 메시지 표시
+            showFruitMessage('정답! 🎉', true);
+            
+            if (fruitGame.correct >= 10) {
+                // 레벨업!
+                fruitGame.level++;
+                fruitGame.correct = 0;
+                
+                // 레벨업 패턴: 홀수 레벨 = 속도 업, 짝수 레벨 = 난이도 업
+                if (fruitGame.level % 2 === 0) {
+                    fruitGame.speedMultiplier += 0.3;
+                } else {
+                    fruitGame.mathDifficulty = Math.min(3, fruitGame.mathDifficulty + 1);
+                }
+                
+                showFruitMessage(`레벨 ${fruitGame.level}! 🚀`, true);
+            }
+            
+            updateFruitHUD();
+            
+            setTimeout(() => {
+                newFruitRound();
+                spawnFruitGroup();
+            }, 1000);
+        }
+
+        function fruitFail() {
+            fruitGame.hearts--;
+            
+            // 난이도에 따라 용돈 차감
+            const penalty = fruitGame.mathDifficulty === 1 ? 50 : fruitGame.mathDifficulty === 2 ? 100 : 200;
+            state.money = Math.max(0, state.money - penalty);
+            saveState();
+            updateDisplay();
+            
+            showFruitMessage(`오버! -${penalty}원 💔`, false);
+            
+            updateFruitHUD();
+            
+            if (fruitGame.hearts <= 0) {
+                // 게임 오버
+                setTimeout(() => {
+                    fruitGameOver();
+                }, 1000);
+            } else {
+                setTimeout(() => {
+                    newFruitRound();
+                    spawnFruitGroup();
+                }, 1000);
+            }
+        }
+
+        function showFruitMessage(text, isSuccess) {
+            const gameArea = document.getElementById('fruitGameArea');
+            const msg = document.createElement('div');
+            msg.className = isSuccess ? 'fruit-success-msg' : 'fruit-fail-msg';
+            msg.textContent = text;
+            msg.style.position = 'absolute';
+            msg.style.top = '50%';
+            msg.style.left = '50%';
+            msg.style.transform = 'translate(-50%, -50%)';
+            msg.style.zIndex = '100';
+            gameArea.style.position = 'relative';
+            gameArea.appendChild(msg);
+            
+            setTimeout(() => {
+                msg.remove();
+            }, 800);
+        }
+
+        function fruitGameOver() {
+            fruitGame.isRunning = false;
+            cancelAnimationFrame(fruitGame.gameLoop);
+            
+            document.getElementById('fruitPlayScreen').style.display = 'none';
+            document.getElementById('fruitGameOver').style.display = 'block';
+            document.getElementById('fruitFinalLevel').textContent = fruitGame.level;
+            document.getElementById('fruitFinalScore').textContent = fruitGame.totalCorrect;
+        }
+
+        function stopFruitGame() {
+            fruitGame.isRunning = false;
+            if (fruitGame.gameLoop) {
+                cancelAnimationFrame(fruitGame.gameLoop);
+            }
+            fruitGame.moveLeft = false;
+            fruitGame.moveRight = false;
+            
+            // 화면 초기화
+            document.getElementById('fruitStartScreen').style.display = 'block';
+            document.getElementById('fruitPlayScreen').style.display = 'none';
+            document.getElementById('fruitGameOver').style.display = 'none';
+        }
+
+        // 빠른 계산 게임
+        let speedInterval;
+        let speedTime = 30;
+        let speedScore = 0;
+        let speedAnswer = 0;
+
+        function startSpeedGame() {
+            speedTime = 30;
+            speedScore = 0;
+            document.getElementById('speedScore').textContent = speedScore;
+            document.getElementById('speedTimer').textContent = speedTime;
+            
+            generateSpeedProblem();
+            
+            speedInterval = setInterval(() => {
+                speedTime--;
+                document.getElementById('speedTimer').textContent = speedTime;
+                if (speedTime <= 0) {
+                    clearInterval(speedInterval);
+                    document.getElementById('speedProblem').textContent = '끝!';
+                    document.getElementById('speedOptions').innerHTML = `
+                        <div style="grid-column: span 2; text-align:center; padding:20px;">
+                            <div style="font-size:1.5em; margin-bottom:15px;">🎉 최종 점수: ${speedScore}점</div>
+                            <button class="btn btn-primary" onclick="startSpeedGame()">다시 하기</button>
+                        </div>
+                    `;
+                }
+            }, 1000);
+        }
+
+        function generateSpeedProblem() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const isAdd = Math.random() > 0.5;
+            
+            let answer;
+            if (isAdd) {
+                answer = num1 + num2;
+                document.getElementById('speedProblem').textContent = `${num1} + ${num2} = ?`;
+            } else {
+                const a = Math.max(num1, num2);
+                const b = Math.min(num1, num2);
+                answer = a - b;
+                document.getElementById('speedProblem').textContent = `${a} - ${b} = ?`;
+            }
+            
+            speedAnswer = answer;
+            
+            // 보기 생성
+            let options = [answer];
+            while (options.length < 4) {
+                const wrong = answer + Math.floor(Math.random() * 10) - 5;
+                if (wrong !== answer && wrong >= 0 && !options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+            options.sort(() => Math.random() - 0.5);
+            
+            document.getElementById('speedOptions').innerHTML = options.map(opt => 
+                `<button class="speed-option" onclick="checkSpeedAnswer(${opt}, this)">${opt}</button>`
+            ).join('');
+        }
+
+        function checkSpeedAnswer(answer, btn) {
+            if (speedTime <= 0) return;
+            
+            if (answer === speedAnswer) {
+                btn.classList.add('correct');
+                speedScore += 10;
+                document.getElementById('speedScore').textContent = speedScore;
+            } else {
+                btn.classList.add('wrong');
+            }
+            
+            setTimeout(generateSpeedProblem, 300);
+        }
+
+        // 숫자 맞추기 게임
+        let guessTarget = 0;
+        let guessCount = 0;
+
+        function initGuessGame() {
+            guessTarget = Math.floor(Math.random() * 100) + 1;
+            guessCount = 0;
+            document.getElementById('guessHistory').innerHTML = '';
+            document.getElementById('guessMessage').textContent = '1부터 100 사이의 숫자를 맞춰보세요!';
+        }
+
+        function newGuessGame() {
+            initGuessGame();
+            document.getElementById('guessInput').value = '';
+        }
+
+        function makeGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                document.getElementById('guessMessage').textContent = '1~100 사이 숫자를 입력해주세요!';
+                return;
+            }
+            
+            guessCount++;
+            const history = document.getElementById('guessHistory');
+            
+            if (guess === guessTarget) {
+                document.getElementById('guessMessage').innerHTML = `
+                    🎉 정답! <strong>${guessTarget}</strong>이었어요!<br>
+                    ${guessCount}번 만에 맞췄어요!
+                `;
+                history.innerHTML += `<span class="guess-item" style="background:#c8e6c9;">${guess} ✓</span>`;
+            } else if (guess < guessTarget) {
+                document.getElementById('guessMessage').textContent = `${guess}보다 커요! ⬆️`;
+                history.innerHTML += `<span class="guess-item up">${guess} ↑</span>`;
+            } else {
+                document.getElementById('guessMessage').textContent = `${guess}보다 작아요! ⬇️`;
+                history.innerHTML += `<span class="guess-item down">${guess} ↓</span>`;
+            }
+            
+            document.getElementById('guessInput').value = '';
+        }
+
+        // 숫자 기억력 게임
+        let memoryLevel = 1;
+        let memoryNumber = '';
+        let memoryPhase = 'ready'; // ready, show, input
+
+        function startMemoryGame() {
+            const btn = document.getElementById('memoryBtn');
+            
+            if (memoryPhase === 'ready') {
+                // 숫자 생성 및 표시
+                const digits = memoryLevel + 2;
+                memoryNumber = '';
+                for (let i = 0; i < digits; i++) {
+                    memoryNumber += Math.floor(Math.random() * 10);
+                }
+                
+                document.getElementById('memoryDisplay').textContent = memoryNumber;
+                document.getElementById('memoryInput').value = '';
+                document.getElementById('memoryInput').disabled = true;
+                btn.textContent = '기억 중...';
+                btn.disabled = true;
+                memoryPhase = 'show';
+                
+                // 2초 후 숨기기
+                setTimeout(() => {
+                    document.getElementById('memoryDisplay').textContent = '???';
+                    document.getElementById('memoryInput').disabled = false;
+                    document.getElementById('memoryInput').focus();
+                    btn.textContent = '확인!';
+                    btn.disabled = false;
+                    memoryPhase = 'input';
+                }, 2000 + memoryLevel * 500);
+                
+            } else if (memoryPhase === 'input') {
+                const input = document.getElementById('memoryInput').value;
+                
+                if (input === memoryNumber) {
+                    memoryLevel++;
+                    document.getElementById('memoryLevel').textContent = `레벨 ${memoryLevel} (${memoryLevel + 2}자리)`;
+                    document.getElementById('memoryDisplay').textContent = '🎉 정답!';
+                    btn.textContent = '다음 레벨!';
+                } else {
+                    document.getElementById('memoryDisplay').textContent = `❌ 정답: ${memoryNumber}`;
+                    memoryLevel = 1;
+                    document.getElementById('memoryLevel').textContent = `레벨 1 (3자리)`;
+                    btn.textContent = '다시 시작';
+                }
+                memoryPhase = 'ready';
+            }
+        }
+
+        // ========== 설정 ==========
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('visible');
+            document.getElementById('goalAmount').value = state.goalAmount;
+        }
+
+        function saveSettings() {
+            state.goalAmount = parseInt(document.getElementById('goalAmount').value) || 5000;
+            saveState();
+            updateDisplay();
+            toggleSettings();
+        }
+
+        function resetAll() {
+            if (confirm('정말 모든 기록을 초기화할까요?')) {
+                localStorage.removeItem('mathGameStateV2');
+                location.reload();
+            }
+        }
+
+        // 엔터키
+        document.getElementById('answerInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') checkAnswer();
+        });
+        document.getElementById('guessInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') makeGuess();
+        });
+        document.getElementById('memoryInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter' && memoryPhase === 'input') startMemoryGame();
+        });
+
+        // ========== PWA 서비스워커 등록 ==========
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('서비스워커 등록 성공!', reg))
+                    .catch(err => console.log('서비스워커 등록 실패:', err));
+            });
+        }
+
+        // 앱 설치 프롬프트
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // 설치 버튼 보여주기
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            const installBtn = document.createElement('button');
+            installBtn.id = 'installBtn';
+            installBtn.innerHTML = '📲 앱 설치하기';
+            installBtn.style.cssText = `
+                position: fixed;
+                bottom: 80px;
+                left: 20px;
+                padding: 12px 20px;
+                background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                color: white;
+                border: none;
+                border-radius: 25px;
+                font-size: 1em;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: pulse 2s infinite;
+            `;
+            installBtn.onclick = installApp;
+            document.body.appendChild(installBtn);
+        }
+
+        async function installApp() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('설치 결과:', outcome);
+            deferredPrompt = null;
+            document.getElementById('installBtn')?.remove();
+        }
+
+        // 이미 설치되었는지 확인
+        window.addEventListener('appinstalled', () => {
+            console.log('앱 설치 완료!');
+            document.getElementById('installBtn')?.remove();
+        });
+
+        // 시작
+        loadState();
+    </script>
+</body>
+</html>
